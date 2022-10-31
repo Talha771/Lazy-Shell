@@ -1,0 +1,10 @@
+PING google.com (142.250.185.46) 56(84) bytes of data.
+64 bytes from mct01s19-in-f14.1e100.net (142.250.185.46): icmp_seq=1 ttl=114 time=269 ms
+64 bytes from mct01s19-in-f14.1e100.net (142.250.185.46): icmp_seq=2 ttl=114 time=118 ms
+64 bytes from mct01s19-in-f14.1e100.net (142.250.185.46): icmp_seq=3 ttl=114 time=122 ms
+64 bytes from mct01s19-in-f14.1e100.net (142.250.185.46): icmp_seq=4 ttl=114 time=133 ms
+64 bytes from mct01s19-in-f14.1e100.net (142.250.185.46): icmp_seq=5 ttl=114 time=158 ms
+
+--- google.com ping statistics ---
+5 packets transmitted, 5 received, 0% packet loss, time 4005ms
+rtt min/avg/max/mdev = 117.686/159.949/269.459/56.489 ms
