@@ -1,0 +1,4 @@
+printf("command: jobs description: Provides list of background processes and their local process ids\ncommand: cd PATHNAME description: Sets PATHNAME as current working directory");
+printf("\ncommand: history description: Prints list of previously executed commands(Max 10)\ncommand: kill PID description: Terminates process identified locally with PID in jobs list");
+printf("\ncommand: !CMD description: runs the command numbered CMD in command history\ncommand: exit description: Terminates shell if and only if there are no background jobs\ncommand: help description: prints list of built in commands along with their description\n");
+}
