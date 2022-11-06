@@ -1,4 +1,4 @@
-    #include <stdio.h>
+#include <stdio.h>
     #include <sys/types.h>
     #include <unistd.h>
     #include <string.h>
@@ -8,6 +8,26 @@
     #include <signal.h>
     #include "./parse.c"
     #include <sys/resource.h>
+
+char *sliceString(char *str, int start, int end)
+{
+
+    int i;
+    int size = (end - start) + 2;
+    char *output = (char *)malloc(size * sizeof(char));
+
+    for (i = 0; start <= end; start++, i++)
+    {
+        output[i] = str[start];
+    }
+
+    output[size] = '\0';
+
+    return output;
+}
+ 
+// Above function taken from the internet to help with slicing 
+    // jobs is not working properly
     struct process{
     int pid;
     char * name; 
@@ -38,6 +58,7 @@
     }
     }
     int main(){
+    int empty_string=0;
     int built_in_cmd_flag=0;
     int *number;
     parseInfo* cmd;
@@ -50,32 +71,55 @@
     printf("\n Prompt>");
     fgets(input,81,stdin);
     cmd = parse(input); 
-    hist_counter++;
-    for (int i=0;i<cmd->CommArray->VarNum;i++){
-        new_arg[i]=cmd->CommArray->VarList[i];
-    }
-    new_arg[11]=NULL;        
+    hist_counter++;   
     if (hist_counter==10){
         hist_counter=0;
     }
-    if (hist_util<10){
+    if (strncmp(input," ",1)==0){
+        printf("empty");
+        empty_string=1;
+    }
+    else{
+        strcpy(hist_arr[hist_counter],input);
+    }
+    if (hist_util<10 && empty_string==0) {
         hist_util++;
     }
-    strcpy(hist_arr[hist_counter],input);
+    if (strncmp(input,"help",4)==0){
+        printf("command: jobs description: Provides list of background processes and their local process ids\ncommand: cd PATHNAME description: Sets PATHNAME as current working directory");
+        printf("\ncommand: history description: Prints list of previously executed commands(Max 10)\ncommand: kill PID description: Terminates process identified locally with PID in jobs list");
+        printf("\ncommand: !CMD description: runs the command numbered CMD in command history\ncommand: exit description: Terminates shell if and only if there are no background jobs\ncommand: help description: prints list of built in commands along with their description\n");
+    }
+    if (strncmp(input,"cd",2)==0){
+    
+        // char* dir = sliceString(input,1,81);
+        // chdir(dir);
+    }
     if (strncmp(input,"kill",4)==0){
         int x = atoi (&input[5])-1;
         int pid2 = bg_arr[x].pid;
+        kill(pid2,SIGTERM);
         for (int j=x;j<bg_util;j++){
-                    bg_arr[j-1]=bg_arr[j];
-                }
-                bg_util--;
-
+            bg_arr[j-1]=bg_arr[j];
+        }
+        bg_util--;
+        
+        // kill(pid2,SIGKILL);
         // cmd->CommArray->VarList[19at("%",(&input[5]));
         // execvp(cmd->CommArray->VarList[0],cmd->CommArray->VarList);
     }
+    if (strncmp(input,"cmd",3)==0){
+        printf("%s",&input[4]);
+        int index = atoi (&input[4]) ;
+        // printf("%d", index);
+        // cmd = parse(hist_arr[index]);
+        parseInfo* new =parse(hist_arr[index]);
+        execvp(new->CommArray->VarList[0],new->CommArray->VarList);
+        built_in_cmd_flag=1;
+    }
     if (strncmp(input,"history", 7) ==0 ){
-        for (int i=0; i<hist_util;i++){
-            printf("%s", hist_arr[i]);
+        for (int i=1; i<hist_util;i++){
+            printf("[%d] %s \n",i, hist_arr[i] );
         }
         built_in_cmd_flag=1;
     }
@@ -90,7 +134,10 @@
         }
         built_in_cmd_flag=1;
     }
-    int pid= fork();
+    int pid =-1;
+    if (empty_string==0){
+        pid= fork();
+    }
     if (pid==0){
         if (cmd->boolBackground){
             int out = open("/dev/null", O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IRGRP | S_IWGRP | S_IWUSR |O_APPEND);
@@ -105,7 +152,10 @@
             dup2(in,0);
         }
         if (built_in_cmd_flag==0){
-        execvp(cmd->CommArray->VarList[0],cmd->CommArray->VarList);
+        if (execvp(cmd->CommArray->VarList[0],cmd->CommArray->VarList)==-1){
+            printf("wrong command muthafuka");
+            break;
+        }
         }
     }
     else{ 
@@ -127,7 +177,8 @@
         signal(SIGCHLD,handler);
         printf("\n parent is running");
     }
-
+    if (pid < 0){
+        continue;
     }
-    return 1;
     }
+    return 1;}
